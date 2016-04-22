@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title> Test Pc Manager </title>
+    </head>
+
+    <body>
+        <div id="content">
+            <table border = "1">
+                <tr>
+                <td colspan="6">Nyquist</td>
+                </tr>
+                <td>IP</td>
+                <td>status</td>
+                <td>username</td>
+                <td>location</td>
+                <td>pc Number</td>
+                <td>device Number</td>
+
+                {% for entry in entries %}
+                <tr>
+                <td>{{ entry["ip"] }}</td>
+                <td>{{ entry["status"] }}</td>
+                <td>{{ entry["username"] }}</td>
+                <td>{{ entry["location"] }}</td>
+                <td>{{ entry["pc_number"] }}</td>
+                <td>{{ entry["device_number"] }}</td>
+                </tr>
+            {% end %}
+            </table>
+
+        </div>
+
+    </body>
+
+</html>
