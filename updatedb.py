@@ -3,8 +3,10 @@ from telnet import telnet_remote
 import re
 import MySQLdb
 from Queue import Queue
+import os
 
-user_pattern = re.compile(r'(.*3389\s+)(\d+.\d+.\d+.\d+)(:\d+)', re.DOTALL)
+host_pattern = re.compile(r'(.*3389\s+)(\d+.\d+.\d+.\d+)(:\d+)', re.DOTALL)
+user_pattern = re.compile(r'(.*\d+.\d+.\d+.\d+\s+)(.*?(?=\s))(\s+.*)')
 
 class PooledConnection(object):
     def __init__(self, maxconnections):
@@ -74,16 +76,25 @@ localdb_update()
 
 def get_user_from_host(host):
     """ get user from host """
-    return host[-4:]
+    out = os.popen('nbtscan %s'%host)
+    out = out.readlines()
+    if len(list(out)) == 5:
+        m = user_pattern.match(out[4])
+        if m:
+            return m.group(2)
+    return None
 
 def update_db(host, ret_msg):
     user = 'None'
     if "ESTABLISHED" in ret_msg:
-        match = user_pattern.match(ret_msg)
+        match = host_pattern.match(ret_msg)
         if match:
-            user = match.group(2)
-        print "get the user:",user[-5:]
-        user = user[-5:]
+            remote_host = match.group(2)
+
+        user = get_user_from_host(remote_host)
+        if user is None:
+            user = 'Unknown'
+        print "get the user:",user
         status = "running"
     elif "timed out" in ret_msg:
         status = "poweroff"
